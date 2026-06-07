@@ -212,6 +212,36 @@ a { color: inherit; text-decoration: none; }
   margin-bottom: 0.25rem;
 }
 
+/* ─── Get Directions button ──────────────────── */
+.directions-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 0.9rem;
+  padding: 0.55rem 1.1rem;
+  font-family: var(--font-sacred);
+  font-size: 0.7rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--maroon);
+  background: linear-gradient(135deg, var(--cream-light) 0%, var(--cream-warm) 100%);
+  border: 1px solid var(--gold-rich);
+  border-radius: 2px;
+  box-shadow: 0 4px 14px rgba(184,134,46,0.18);
+  transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.directions-btn:hover {
+  transform: translateY(-2px);
+  color: var(--cream-light);
+  background: linear-gradient(135deg, var(--gold-deep) 0%, var(--gold-rich) 50%, var(--gold-bright) 100%);
+  box-shadow: 0 8px 22px rgba(184,134,46,0.4);
+}
+.directions-btn .pin {
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
 /* Decorative ornament */
 .ornament {
   display: flex;
@@ -1013,6 +1043,13 @@ section {
   margin-top: 1rem;
   opacity: 0.85;
 }
+.footer-closing {
+  font-family: var(--font-script);
+  font-size: clamp(1.6rem, 3.6vw, 2.3rem);
+  color: var(--gold-rich);
+  line-height: 1.2;
+  margin-top: 1.25rem;
+}
 
 /* ============================================
    SCROLL REVEAL
@@ -1151,6 +1188,14 @@ section {
       <strong>Venue</strong>
       Plot No. 6, Vajreshwari Nagar,<br>
       Akkalkot Road, Solapur 413006
+      <div>
+        <a class="directions-btn"
+           href="https://maps.app.goo.gl/vvodfHn4expv1KcX8"
+           target="_blank" rel="noopener"
+           aria-label="Get directions to Haldi venue on Google Maps">
+          <span class="pin" aria-hidden="true">📍</span> Get Directions
+        </a>
+      </div>
     </div>
   </div>
 </section>
@@ -1172,6 +1217,14 @@ section {
       New Paccha Peth, Kamtam Vashat,<br>
       MIDC Rd, Solapur,<br>
       Maharashtra 413006
+      <div>
+        <a class="directions-btn"
+           href="https://maps.app.goo.gl/g7qY1xcbRwek538VA"
+           target="_blank" rel="noopener"
+           aria-label="Get directions to Tilak and Sangeet venue on Google Maps">
+          <span class="pin" aria-hidden="true">📍</span> Get Directions
+        </a>
+      </div>
     </div>
   </div>
 </section>
@@ -1187,7 +1240,7 @@ section {
       <div class="muhurtham-date gold-shimmer">24</div>
       <div class="muhurtham-month">June · 2026</div>
       <div class="muhurtham-divider"></div>
-      <div class="muhurtham-time">12:29 PM</div>
+      <div class="muhurtham-time">Muhurtham &middot; 12:29 PM</div>
       <div class="muhurtham-label">Akshada Timing</div>
       <div class="muhurtham-venue">
         <strong>Venue</strong>
@@ -1195,6 +1248,14 @@ section {
         New Paccha Peth, Kamtam Vashat,<br>
         MIDC Rd, Solapur,<br>
         Maharashtra 413006
+        <div>
+          <a class="directions-btn"
+             href="https://maps.app.goo.gl/g7qY1xcbRwek538VA"
+             target="_blank" rel="noopener"
+             aria-label="Get directions to the Wedding venue on Google Maps">
+            <span class="pin" aria-hidden="true">📍</span> Get Directions
+          </a>
+        </div>
       </div>
     </div>
   </div>
@@ -1206,7 +1267,7 @@ section {
 <section class="countdown">
   <div class="container">
     <div class="section-label reveal-up">The Day Approaches</div>
-    <h2 class="section-title reveal-up">Counting every <em>moment</em></h2>
+    <h2 class="section-title reveal-up">Our Forever <em>Begins In</em></h2>
     <div class="ornament">✦</div>
 
     <div class="countdown-grid">
@@ -1256,15 +1317,8 @@ section {
 
       <div class="ornament">✦</div>
 
-      <p>
-        We warmly invite you to share in one of the most cherished moments of our lives.
-      </p>
-      <p>
-        As we step into this beautiful journey together — bound by love, tradition,
-        and the blessings of our families — your presence will make this day truly unforgettable.
-      </p>
       <p style="color:var(--gold-rich); font-weight:500;">
-        Come, celebrate with us as a new chapter begins.
+        Two families, one beautiful beginning.
       </p>
     </div>
   </div>
@@ -1287,7 +1341,7 @@ section {
 
     <div class="rsvp-buttons reveal-up">
       <a class="rsvp-btn primary"
-         href="https://wa.me/917249776066?text=Namaste!%20I%20would%20be%20delighted%20to%20attend%20Kishor%20%26%20Ruthika's%20wedding%20on%2024th%20June%202026."
+         href="https://wa.me/917249776066?text=Namaste!%20I%20will%20be%20attending%20Kishor%20%26%20Ruthika's%20wedding%20on%2024th%20June%202026.%20We%20will%20be%20%5BX%5D%20people."
          target="_blank" rel="noopener">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
           <path d="M17.5 14.4c-.3-.1-1.7-.8-2-.9-.3-.1-.5-.1-.7.1-.2.3-.7.9-.9 1.1-.2.2-.3.2-.6.1-.3-.1-1.2-.5-2.3-1.4-.9-.8-1.4-1.7-1.6-2-.2-.3 0-.5.1-.6l.4-.5c.1-.2.2-.3.3-.5.1-.2 0-.3 0-.5s-.7-1.7-1-2.3c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4s1.1 2.8 1.2 3c.1.2 2.1 3.2 5.1 4.5.7.3 1.3.5 1.7.6.7.2 1.4.2 1.9.1.6-.1 1.7-.7 2-1.4.2-.7.2-1.2.2-1.4-.1-.1-.3-.2-.6-.3z"/>
@@ -1326,6 +1380,7 @@ section {
     <p class="footer-hashtag gold-shimmer">#KiRu</p>
     <div class="ornament" style="margin-top:1.5rem; margin-bottom:1rem;">✦ ❋ ✦</div>
     <p class="footer-meta">Thank You</p>
+    <p class="footer-closing gold-shimmer">With love, Kishor &amp; Ruthika &#127802;</p>
   </div>
 </footer>
 
