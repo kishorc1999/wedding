@@ -340,6 +340,28 @@ a { color: inherit; text-decoration: none; }
   color: var(--maroon);
   opacity: 0.75;
 }
+.loader-hint {
+  margin-top: 1.6rem;
+  font-family: var(--font-sacred);
+  font-size: 0.7rem;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--gold-rich);
+  opacity: 0;
+  animation: loaderHintIn 0.9s ease 0.6s forwards,
+             loaderHintPulse 2.4s ease-in-out 1.6s infinite;
+}
+@keyframes loaderHintIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 0.9; transform: translateY(0); }
+}
+@keyframes loaderHintPulse {
+  0%, 100% { opacity: 0.55; }
+  50%      { opacity: 1; }
+}
+#loader { cursor: pointer; }
+#loader.open { cursor: default; }
+#loader.open .loader-hint { opacity: 0; transition: opacity 0.4s ease; animation: none; }
 
 /* ============================================
    FLOATING PETALS (pink lotus + marigold)
@@ -1148,10 +1170,12 @@ section {
 <!-- ============================================
      LOADER — Real temple doors open
      ============================================ -->
-<div id="loader">
+<div id="loader" role="button" tabindex="0"
+     aria-label="Tap to open the temple doors">
   <div class="loader-center">
     <div class="loader-om">ॐ</div>
     <div class="loader-text">Shubha Aarambham</div>
+    <div class="loader-hint">Tap to enter</div>
   </div>
   <div class="loader-doors">
     <div class="door door-left"></div>
@@ -1450,18 +1474,49 @@ section {
 
 <script>
 /* ============================================
-   1. LOADER — Doors open automatically within 1s of page load
+   1. LOADER — Doors open on the user's first tap/click/key press.
+      We wait for an explicit interaction so (a) it feels intentional
+      and (b) it counts as a user gesture, letting the background
+      music begin without browsers blocking autoplay.
    ============================================ */
-window.addEventListener('load', () => {
+(function setupLoader() {
   const loader = document.getElementById('loader');
-  // Remove any pointer-events so door panels are not clickable
-  loader.style.pointerEvents = 'none';
-  setTimeout(() => {
+  if (!loader) return;
+
+  let opened = false;
+  function openDoors() {
+    if (opened) return;
+    opened = true;
     loader.classList.add('open');
-    setTimeout(() => loader.classList.add('gone'), 1900);
-    setTimeout(() => loader.style.display = 'none', 2800);
-  }, 800);
-});
+    setTimeout(() => loader.classList.add('gone'), 1100);
+    setTimeout(() => { loader.style.display = 'none'; }, 2000);
+
+    // Try to start the music now — we have a user gesture, so this is allowed.
+    const audio = document.getElementById('bgAudio');
+    const toggle = document.getElementById('audioToggle');
+    if (audio) {
+      const p = audio.play();
+      if (p && typeof p.then === 'function') {
+        p.then(() => {
+          if (toggle) {
+            toggle.classList.add('playing');
+            toggle.setAttribute('aria-pressed', 'true');
+            toggle.setAttribute('aria-label', 'Pause music');
+          }
+        }).catch(() => { /* user can still tap the toggle */ });
+      }
+    }
+  }
+
+  loader.addEventListener('click', openDoors);
+  loader.addEventListener('touchstart', openDoors, { passive: true });
+  loader.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      openDoors();
+    }
+  });
+})();
 
 /* ============================================
    2. FLOATING PETALS (lotus + marigold + jasmine mix)
