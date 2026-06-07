@@ -302,7 +302,7 @@ a { color: inherit; text-decoration: none; }
   background-size: 200% 100%;
   background-repeat: no-repeat;
   background-color: var(--cream-warm);
-  transition: transform 0.9s cubic-bezier(0.77, 0, 0.175, 1);
+  transition: transform 2.2s cubic-bezier(0.65, 0, 0.2, 1);
   position: relative;
   z-index: 2;
 }
@@ -311,7 +311,10 @@ a { color: inherit; text-decoration: none; }
 
 #loader.open .door-left  { transform: translateX(-105%); }
 #loader.open .door-right { transform: translateX(105%); }
-#loader.gone { pointer-events: none; opacity: 0; transition: opacity 0.7s ease 0.3s; }
+#loader.gone { pointer-events: none; opacity: 0; transition: opacity 0.9s ease 0.3s; }
+
+/* Lock background scroll while the loader is on screen */
+body.loader-active { overflow: hidden; touch-action: none; }
 
 .loader-center {
   position: absolute;
@@ -1483,18 +1486,32 @@ section {
   const loader = document.getElementById('loader');
   if (!loader) return;
 
+  // Freeze background scroll while the loader is on screen.
+  document.body.classList.add('loader-active');
+  const lockScroll = (e) => { e.preventDefault(); };
+  window.addEventListener('wheel',     lockScroll, { passive: false });
+  window.addEventListener('touchmove', lockScroll, { passive: false });
+  const blockScrollKeys = (e) => {
+    if (!document.body.classList.contains('loader-active')) return;
+    if (['ArrowUp','ArrowDown','PageUp','PageDown','Home','End',' '].includes(e.key)) {
+      e.preventDefault();
+    }
+  };
+  window.addEventListener('keydown', blockScrollKeys, { passive: false });
+
+  // Door animation duration (keep in sync with .door CSS transition).
+  const DOOR_MS = 2200;
+
   let opened = false;
   function openDoors() {
     if (opened) return;
     opened = true;
-    loader.classList.add('open');
-    setTimeout(() => loader.classList.add('gone'), 1100);
-    setTimeout(() => { loader.style.display = 'none'; }, 2000);
 
-    // Try to start the music now — we have a user gesture, so this is allowed.
+    // Start the music at the SAME moment the doors begin to open.
     const audio = document.getElementById('bgAudio');
     const toggle = document.getElementById('audioToggle');
     if (audio) {
+      try { audio.currentTime = 0; } catch (_) {}
       const p = audio.play();
       if (p && typeof p.then === 'function') {
         p.then(() => {
@@ -1506,6 +1523,16 @@ section {
         }).catch(() => { /* user can still tap the toggle */ });
       }
     }
+
+    loader.classList.add('open');
+    setTimeout(() => loader.classList.add('gone'), DOOR_MS);
+    setTimeout(() => {
+      loader.style.display = 'none';
+      document.body.classList.remove('loader-active');
+      window.removeEventListener('wheel',     lockScroll, { passive: false });
+      window.removeEventListener('touchmove', lockScroll, { passive: false });
+      window.removeEventListener('keydown',   blockScrollKeys, { passive: false });
+    }, DOOR_MS + 900);
   }
 
   loader.addEventListener('click', openDoors);
