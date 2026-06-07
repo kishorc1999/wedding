@@ -1393,28 +1393,110 @@ const countUnits = document.querySelectorAll('.count-unit');
 countUnits.forEach((unit, i) => unit.style.transitionDelay = (i * 0.12) + 's');
 
 /* ============================================
-   5. AUDIO TOGGLE — click to play/pause
+   5. AUDIO — Autoplay on first user gesture + click to toggle
    ============================================ */
 const audio = document.getElementById('bgAudio');
 const audioToggle = document.getElementById('audioToggle');
 audio.volume = 0.5;
-let audioPlaying = false;
+audio.setAttribute('playsinline', '');
+audio.preload = 'auto';
+
+let audioStarted = false;   // true once unmuted playback has begun
+let userPaused   = false;   // true only when user clicks pause
 
 const iconMusic = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>`;
 const iconPause = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>`;
 
-audioToggle.addEventListener('click', () => {
-  if (audioPlaying) {
-    audio.pause();
-    audioPlaying = false;
-    audioToggle.classList.remove('playing');
-    audioToggle.innerHTML = iconMusic;
+const setBtnState = (playing) => {
+  audioToggle.classList.toggle('playing', playing);
+  audioToggle.innerHTML = playing ? iconPause : iconMusic;
+  audioToggle.setAttribute('aria-label', playing ? 'Pause music' : 'Play music');
+};
+setBtnState(false);
+
+// Try to start audio unmuted
+const startAudio = () => {
+  if (audioStarted || userPaused) return Promise.resolve();
+  audio.muted = false;
+  const p = audio.play();
+  return (p && p.then ? p : Promise.resolve()).then(() => {
+    if (!audio.paused && !audio.muted) {
+      audioStarted = true;
+      removeGestureListeners();
+    }
+  });
+};
+
+// Prime the element with muted autoplay so it's ready to switch to unmuted instantly
+const primeMuted = () => {
+  if (audioStarted) return;
+  audio.muted = true;
+  const p = audio.play();
+  if (p && p.catch) p.catch(() => {});
+};
+
+// Listen for any user gesture — first one starts the music
+const gestureEvents = [
+  'pointerdown', 'pointermove', 'pointerup',
+  'mousedown', 'mousemove', 'mouseup',
+  'click',
+  'touchstart', 'touchmove', 'touchend',
+  'keydown',
+  'scroll', 'wheel'
+];
+
+const onGesture = () => { startAudio().catch(() => {}); };
+
+function addGestureListeners() {
+  gestureEvents.forEach(ev => {
+    window.addEventListener(ev,   onGesture, { passive: true, capture: true });
+    document.addEventListener(ev, onGesture, { passive: true, capture: true });
+  });
+}
+function removeGestureListeners() {
+  gestureEvents.forEach(ev => {
+    window.removeEventListener(ev,   onGesture, { capture: true });
+    document.removeEventListener(ev, onGesture, { capture: true });
+  });
+}
+
+// Manual play / pause via the floating button
+audioToggle.addEventListener('click', (e) => {
+  e.stopPropagation();
+  if (audio.paused || audio.muted) {
+    userPaused = false;
+    audio.muted = false;
+    const p = audio.play();
+    if (p && p.then) p.then(() => { audioStarted = true; }).catch(() => {});
   } else {
-    audio.play().then(() => {
-      audioPlaying = true;
-      audioToggle.classList.add('playing');
-      audioToggle.innerHTML = iconPause;
-    }).catch(err => console.warn('Audio play failed:', err));
+    userPaused = true;
+    audio.pause();
+  }
+});
+
+// Keep button icon synced with actual audio state
+audio.addEventListener('play',         () => setBtnState(!audio.muted));
+audio.addEventListener('playing',      () => setBtnState(!audio.muted));
+audio.addEventListener('pause',        () => setBtnState(false));
+audio.addEventListener('ended',        () => setBtnState(false));
+audio.addEventListener('volumechange', () => setBtnState(!audio.paused && !audio.muted));
+
+// Initialise: wire gesture listeners, try unmuted, fall back to muted prime
+const initAudio = () => {
+  addGestureListeners();
+  startAudio().catch(() => primeMuted());
+};
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initAudio, { once: true });
+} else {
+  initAudio();
+}
+
+// Retry when the tab becomes visible (for links opened in background tabs)
+document.addEventListener('visibilitychange', () => {
+  if (!audioStarted && !userPaused && document.visibilityState === 'visible') {
+    startAudio().catch(() => {});
   }
 });
 
