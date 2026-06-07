@@ -302,7 +302,7 @@ a { color: inherit; text-decoration: none; }
   background-size: 200% 100%;
   background-repeat: no-repeat;
   background-color: var(--cream-warm);
-  transition: transform 2.2s cubic-bezier(0.65, 0, 0.2, 1);
+  transition: transform 3.2s cubic-bezier(0.55, 0.05, 0.15, 1);
   position: relative;
   z-index: 2;
 }
@@ -606,7 +606,7 @@ section {
   font-weight: 500;
 }
 body.entered .hero-sanskrit {
-  animation: fadeUp 1.2s ease 0.2s forwards;
+  animation: fadeUp 1.4s ease 0.25s forwards;
 }
 
 .hero-subtitle {
@@ -619,7 +619,7 @@ body.entered .hero-sanskrit {
   opacity: 0;
 }
 body.entered .hero-subtitle {
-  animation: fadeUp 1.2s ease 0.45s forwards;
+  animation: fadeUp 1.4s ease 0.7s forwards;
 }
 
 .couple-names {
@@ -640,20 +640,30 @@ body.entered .hero-subtitle {
   transform: translateY(30px);
 }
 body.entered .couple-names .name {
-  animation: fadeUp 1.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: nameSweep 1.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
-body.entered .couple-names .name:nth-child(1) { animation-delay: 0.75s; }
-body.entered .couple-names .name:nth-child(3) { animation-delay: 1.15s; }
+body.entered .couple-names .name:nth-child(1) { animation-delay: 1.25s; }
+body.entered .couple-names .name:nth-child(3) { animation-delay: 2.05s; }
 .couple-names .amp {
   font-family: var(--font-sacred);
   font-size: 0.32em;
   color: var(--gold-rich);
   opacity: 0;
-  transform: translateY(-0.4em);
+  transform: translateY(-0.4em) scale(0.7);
   letter-spacing: 0;
 }
 body.entered .couple-names .amp {
-  animation: fadeUp 1.4s ease 0.95s forwards;
+  animation: ampGlow 1.4s ease 1.7s forwards;
+}
+@keyframes nameSweep {
+  0%   { opacity: 0; transform: translateY(40px) scale(0.96); filter: blur(6px); }
+  60%  { opacity: 1; transform: translateY(0)    scale(1.02); filter: blur(0); }
+  100% { opacity: 1; transform: translateY(0)    scale(1);    filter: blur(0); }
+}
+@keyframes ampGlow {
+  0%   { opacity: 0; transform: translateY(-0.4em) scale(0.6); text-shadow: 0 0 0 transparent; }
+  60%  { opacity: 1; transform: translateY(-0.4em) scale(1.15); text-shadow: 0 0 18px rgba(244,217,138,0.85); }
+  100% { opacity: 1; transform: translateY(-0.4em) scale(1);    text-shadow: 0 0 8px rgba(244,217,138,0.4); }
 }
 
 @keyframes fadeUp {
@@ -682,7 +692,7 @@ body.entered .couple-names .amp {
   backdrop-filter: blur(2px);
 }
 body.entered .hero-date {
-  animation: fadeUp 1.2s ease 1.5s forwards;
+  animation: fadeUp 1.2s ease 2.9s forwards;
 }
 .hero-date span { color: var(--gold-rich); font-weight: 600; }
 .hero-date::before, .hero-date::after {
@@ -719,7 +729,7 @@ body.entered .hero-date {
   -webkit-tap-highlight-color: transparent;
 }
 body.entered .scroll-indicator {
-  animation: fadeUp 1s ease 2.2s forwards, scroll-bounce 2.4s ease-in-out 2.8s infinite;
+  animation: fadeUp 1s ease 3.6s forwards, scroll-bounce 2.4s ease-in-out 4.2s infinite;
 }
 .scroll-indicator:hover,
 .scroll-indicator:focus-visible {
@@ -1570,12 +1580,23 @@ body.entered .scroll-indicator {
   };
   window.addEventListener('keydown', blockScrollKeys, { passive: false });
 
+  // Block early taps so the ॐ / aura / sparks / hint reveal always plays through.
+  const LOADER_MIN_MS = 2600;
+  const loaderShownAt = performance.now();
+
   // Door animation duration (keep in sync with .door CSS transition).
-  const DOOR_MS = 2200;
+  const DOOR_MS = 3200;
 
   let opened = false;
+  let waiting = false;
   function openDoors() {
-    if (opened) return;
+    if (opened || waiting) return;
+    const elapsed = performance.now() - loaderShownAt;
+    if (elapsed < LOADER_MIN_MS) {
+      waiting = true;
+      setTimeout(() => { waiting = false; openDoors(); }, LOADER_MIN_MS - elapsed);
+      return;
+    }
     opened = true;
 
     // Start the music at the SAME moment the doors begin to open.
@@ -1596,9 +1617,9 @@ body.entered .scroll-indicator {
     }
 
     loader.classList.add('open');
-    // Trigger hero entry animations the instant the doors start parting
-    // (they take ~2.2s, so by the time the user sees the hero, names sweep in)
-    document.body.classList.add('entered');
+    // Trigger hero entry animations only AFTER the doors finish parting,
+    // so the names and date are visibly performed for the user.
+    setTimeout(() => document.body.classList.add('entered'), DOOR_MS - 200);
     setTimeout(() => loader.classList.add('gone'), DOOR_MS);
     setTimeout(() => {
       loader.style.display = 'none';
