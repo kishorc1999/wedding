@@ -74,6 +74,24 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* ============================================
+   PAGE-LIKE SECTION SNAP
+   Each <section>/footer snaps into place on scroll.
+   Uses 'proximity' so users can still pause mid-section
+   when content is taller than the viewport.
+   ============================================ */
+html {
+  scroll-snap-type: y proximity;
+}
+section,
+footer {
+  scroll-snap-align: start;
+  scroll-snap-stop: normal;
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-snap-type: none; }
+}
 img { max-width: 100%; display: block; }
 button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
 a { color: inherit; text-decoration: none; }
@@ -562,6 +580,15 @@ section {
   gap: 1.25rem;
   opacity: 0;
   animation: fadeUp 1.2s ease 1.7s forwards;
+  /* Keep the date readable above the hero artwork (the hummingbird in bg-hero.png) */
+  position: relative;
+  z-index: 10;
+  padding: 0.55rem 1.4rem;
+  background: rgba(253, 246, 231, 0.92);
+  border: 1px solid rgba(184, 134, 46, 0.45);
+  border-radius: 999px;
+  box-shadow: 0 6px 22px rgba(74, 20, 24, 0.08);
+  backdrop-filter: blur(2px);
 }
 .hero-date span { color: var(--gold-rich); font-weight: 600; }
 .hero-date::before, .hero-date::after {
@@ -575,14 +602,37 @@ section {
   bottom: 1.5rem;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 2;
+  z-index: 11;
   font-family: var(--font-sacred);
   font-size: 0.68rem;
   letter-spacing: 0.4em;
   color: var(--maroon);
   opacity: 0;
-  animation: fadeUp 1s ease 2.4s forwards, bounce 2.5s ease-in-out 3s infinite;
+  animation: fadeUp 1s ease 2.4s forwards, scroll-bounce 2.4s ease-in-out 3s infinite;
   text-transform: uppercase;
+  /* Make it look and behave like a clickable hint */
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0.6rem 1.1rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: color 0.3s ease, transform 0.3s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.scroll-indicator:hover,
+.scroll-indicator:focus-visible {
+  color: var(--gold-rich);
+  outline: none;
+}
+.scroll-indicator:focus-visible {
+  box-shadow: 0 0 0 2px rgba(184, 134, 46, 0.5);
+  border-radius: 4px;
 }
 .scroll-indicator::after {
   content: '';
@@ -591,6 +641,10 @@ section {
   height: 36px;
   background: linear-gradient(180deg, var(--gold-rich), transparent);
   margin: 0.6rem auto 0;
+}
+@keyframes scroll-bounce {
+  0%, 100% { transform: translate(-50%, 0); }
+  50%      { transform: translate(-50%, 8px); }
 }
 @keyframes bounce {
   0%, 100% { transform: translate(-50%, 0); }
@@ -1135,14 +1189,17 @@ section {
       <span>24</span> · June · <span>2026</span>
     </div>
   </div>
-  <div class="scroll-indicator scroll-indicator-raised">Scroll to begin</div>
+  <button type="button"
+          class="scroll-indicator scroll-indicator-raised"
+          data-scroll-target="#invitation"
+          aria-label="Scroll to invitation">Scroll to begin</button>
 </section>
 
 
 <!-- ============================================
      INVITATION CARD
      ============================================ -->
-<section class="invitation bg-section">
+<section id="invitation" class="invitation bg-section">
   <div class="invitation-content reveal-up">
     <p class="invite-blessing">॥ शुभमस्तु ॥</p>
 
@@ -1448,6 +1505,20 @@ function updateCountdown() {
 }
 updateCountdown();
 setInterval(updateCountdown, 1000);
+
+/* ============================================
+   3b. SCROLL-TO-BEGIN — smooth-scroll hero hint to next section
+   ============================================ */
+document.querySelectorAll('[data-scroll-target]').forEach((el) => {
+  el.addEventListener('click', (e) => {
+    const sel = el.getAttribute('data-scroll-target');
+    const target = sel && document.querySelector(sel);
+    if (target) {
+      e.preventDefault();
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+});
 
 /* ============================================
    4. SCROLL REVEAL via IntersectionObserver
