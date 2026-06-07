@@ -642,8 +642,10 @@ body.entered .hero-subtitle {
 body.entered .couple-names .name {
   animation: nameSweep 1.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
-body.entered .couple-names .name:nth-child(1) { animation-delay: 1.25s; }
-body.entered .couple-names .name:nth-child(3) { animation-delay: 2.05s; }
+/* DOM order is: name, <br>, amp, <br>, name — so use of-type to pick the
+   second .name span reliably (works regardless of the <br> spacers). */
+body.entered .couple-names .name:first-of-type { animation-delay: 1.25s; }
+body.entered .couple-names .name:last-of-type  { animation-delay: 2.05s; }
 .couple-names .amp {
   font-family: var(--font-sacred);
   font-size: 0.32em;
