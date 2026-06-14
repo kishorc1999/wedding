@@ -94,25 +94,25 @@ footer {
 }
 
 /* ── Print / Save-as-PDF ──────────────────────────────── */
-@media print {
-  /* hide everything except the page content */
-  #loader, #petals, #audio-toggle, audio,
-  .scroll-begin, .download-btn { display: none !important; }
+#print-card { display: none; }
 
-  /* reset scroll-snap & backgrounds for clean print */
-  html, body {
-    scroll-snap-type: none !important;
-    background: #fff !important;
-    color: #000 !important;
+@media print {
+  @page { size: A4 portrait; margin: 16mm 14mm; }
+
+  /* hide the entire web UI; only the print card is shown */
+  body > *:not(#print-card) { display: none !important; }
+
+  #print-card {
+    display: block !important;
+    margin: 0;
+    padding: 0;
   }
 
-  /* let every section start on a new page */
-  section { page-break-inside: avoid; break-inside: avoid; }
-
-  /* make gold shimmer readable in B&W */
-  .gold-shimmer { -webkit-text-fill-color: #8a6a00 !important; }
-
-  a[href]::after { content: none !important; }
+  html, body {
+    margin: 0; padding: 0;
+    background: #fff !important;
+    scroll-snap-type: none !important;
+  }
 }
 
 img { max-width: 100%; display: block; }
@@ -1840,6 +1840,102 @@ if (window.gsap && window.ScrollTrigger) {
   });
 }
 </script>
+
+<!-- ============================================
+     PRINT CARD — shown only when printing / saving as PDF
+     ============================================ -->
+<div id="print-card">
+<style>
+  #print-card {
+    font-family: 'Cormorant Garamond', 'Georgia', serif;
+    color: #3a1a0e;
+    text-align: center;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .pc-border {
+    border: 2.5pt double #b8862e;
+    outline: 0.8pt solid #b8862e;
+    outline-offset: -6pt;
+    padding: 30pt 36pt;
+    position: relative;
+    box-sizing: border-box;
+  }
+  .pc-corner {
+    position: absolute;
+    font-size: 20pt;
+    color: #b8862e;
+    line-height: 1;
+  }
+  .pc-corner.tl { top: 8pt;  left: 10pt; }
+  .pc-corner.tr { top: 8pt;  right: 10pt; }
+  .pc-corner.bl { bottom: 8pt; left: 10pt; }
+  .pc-corner.br { bottom: 8pt; right: 10pt; }
+  .pc-om        { font-size: 32pt; color: #b8862e; margin-bottom: 2pt; line-height: 1.2; }
+  .pc-blessing  { font-size: 10pt; letter-spacing: 0.14em; color: #8a6a00; margin-bottom: 16pt; }
+  .pc-intro     { font-size: 9.5pt; margin-bottom: 3pt; }
+  .pc-families  { font-size: 11pt; font-weight: 700; margin: 6pt 0 4pt; line-height: 1.6; }
+  .pc-invite    { font-size: 9.5pt; margin-bottom: 10pt; line-height: 1.6; }
+  .pc-names     { font-size: 34pt; font-weight: 700; color: #8a0000; letter-spacing: 0.04em; margin: 8pt 0 6pt; line-height: 1.1; }
+  .pc-divider   { color: #b8862e; font-size: 11pt; letter-spacing: 0.35em; margin: 8pt 0; }
+  .pc-events    { width: 100%; border-collapse: separate; border-spacing: 6pt 0; margin: 14pt 0 10pt; }
+  .pc-events td { width: 33.3%; vertical-align: top; padding: 10pt 8pt; border: 1pt solid #d4a843; background: #fffdf5; }
+  .pc-etitle    { font-size: 10.5pt; font-weight: 700; color: #8a0000; margin-bottom: 5pt; }
+  .pc-edate     { font-size: 9pt;   font-weight: 600; margin-bottom: 3pt; }
+  .pc-etime     { font-size: 9pt;   color: #5a3010; margin-bottom: 5pt; }
+  .pc-evenue    { font-size: 8.5pt; color: #5a3010; line-height: 1.55; }
+  .pc-footer    { margin-top: 14pt; }
+  .pc-fn        { font-size: 15pt; color: #8a0000; font-style: italic; margin-bottom: 4pt; }
+  .pc-hash      { font-size: 9pt;  color: #8a6a00; letter-spacing: 0.1em; margin-bottom: 6pt; }
+  .pc-wish      { font-size: 9pt;  color: #5a3010; }
+</style>
+<div class="pc-border">
+  <span class="pc-corner tl">✦</span>
+  <span class="pc-corner tr">✦</span>
+  <span class="pc-corner bl">✦</span>
+  <span class="pc-corner br">✦</span>
+
+  <div class="pc-om">ॐ</div>
+  <div class="pc-blessing">॥ श्री गणेशाय नमः ॥ &nbsp;&nbsp;&nbsp; ॥ शुभमस्तु ॥</div>
+
+  <div class="pc-intro">With great joy and gratitude,</div>
+  <div class="pc-families">The Chintanpalli Family<br>&amp;<br>The Bhimanpalli Family</div>
+  <div class="pc-invite">cordially invite you to celebrate the wedding of their beloved children</div>
+
+  <div class="pc-names">Kishor &amp; Ruthika</div>
+  <div class="pc-divider">✦ &nbsp; ❋ &nbsp; ✦</div>
+
+  <!-- 3-column event grid -->
+  <table class="pc-events"><tbody><tr>
+    <td>
+      <div class="pc-etitle">Haldi Ceremony</div>
+      <div class="pc-edate">Sunday, 21 June 2026</div>
+      <div class="pc-etime">11:00 AM</div>
+      <div class="pc-evenue">Plot No. 6, Vajreshwari Nagar,<br>Akkalkot Road,<br>Solapur 413006</div>
+    </td>
+    <td>
+      <div class="pc-etitle">Tilak &amp; Sangeet</div>
+      <div class="pc-edate">Tuesday, 23 June 2026</div>
+      <div class="pc-etime">5:30 PM onwards</div>
+      <div class="pc-evenue">Shri Krishna Hall,<br>New Paccha Peth,<br>MIDC Rd, Solapur<br>Maharashtra 413006</div>
+    </td>
+    <td>
+      <div class="pc-etitle">Subha Muhurtham</div>
+      <div class="pc-edate">Wednesday, 24 June 2026</div>
+      <div class="pc-etime">Muhurtham · 12:29 PM</div>
+      <div class="pc-evenue">Shri Krishna Hall,<br>New Paccha Peth,<br>MIDC Rd, Solapur<br>Maharashtra 413006</div>
+    </td>
+  </tr></tbody></table>
+
+  <div class="pc-divider">✦</div>
+
+  <div class="pc-footer">
+    <div class="pc-fn">Kishor &amp; Ruthika</div>
+    <div class="pc-hash">#KISHORWEDSRUTHIKA &nbsp;·&nbsp; #RuKi</div>
+    <div class="pc-wish">Your presence and blessings are our greatest gift.</div>
+  </div>
+</div>
+</div>
 
 </body>
 </html>
