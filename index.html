@@ -318,11 +318,10 @@ body.loader-active { overflow: hidden; touch-action: none; }
 
 .loader-center {
   position: absolute;
-  z-index: 3;
+  z-index: 1;
   text-align: center;
   color: var(--gold-rich);
 }
-#loader.open .loader-center { opacity: 0; transition: opacity 0.6s ease; }
 /* Expanding gold aura behind the ॐ */
 .loader-center::before {
   content: '';
@@ -407,22 +406,12 @@ body.loader-active { overflow: hidden; touch-action: none; }
   margin-top: 1.6rem;
   font-family: var(--font-sacred);
   font-size: 0.7rem;
-  letter-spacing: 0.32em;
+  letter-spacing: 0.4em;
   text-transform: uppercase;
   color: var(--gold-rich);
   opacity: 0;
   animation: loaderHintIn 0.9s ease 1.7s forwards,
              loaderHintPulse 2.4s ease-in-out 2.7s infinite;
-  line-height: 1.9;
-}
-.loader-hint-tag {
-  display: inline-block;
-  margin-left: 0.35em;
-  font-family: var(--font-script, 'Tangerine', cursive);
-  font-size: 1.6rem;
-  letter-spacing: 0.04em;
-  text-transform: none;
-  vertical-align: -0.15em;
 }
 @keyframes loaderHintIn {
   from { opacity: 0; transform: translateY(8px); }
@@ -1272,10 +1261,7 @@ body.entered .scroll-indicator {
   <div class="loader-center">
     <div class="loader-om">ॐ</div>
     <div class="loader-text">Shubha Aarambham</div>
-    <div class="loader-hint">
-      Click to view the invitation of
-      <span class="loader-hint-tag gold-shimmer">#RuKi</span>
-    </div>
+    <div class="loader-hint">Tap to enter</div>
   </div>
   <div class="loader-doors">
     <div class="door door-left"></div>
